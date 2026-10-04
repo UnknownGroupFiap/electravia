@@ -1,0 +1,168 @@
+@startuml modelo-logico
+' Modelo lógico ElectraVia - notação Engenharia da Informação (pé de galinha)
+' Convenção do material: T_<SIGLA>_<TABELA>; id_ nm_ ds_ nr_ dt_ st_ vl_ qt_ tp_ sg_
+hide circle
+hide methods
+skinparam monochrome true
+skinparam shadowing false
+skinparam dpi 130
+skinparam defaultFontName Liberation Sans
+skinparam classFontStyle bold
+skinparam nodesep 45
+skinparam ranksep 55
+
+entity T_ELV_USUARIO {
+  * id_usuario : NUMBER(10) <<PK>>
+  --
+  * nm_usuario : VARCHAR2(100)
+  * ds_email : VARCHAR2(120) <<UK>>
+  * ds_senha_hash : VARCHAR2(255)
+  * tp_usuario : CHAR(1)
+  * st_ativo : CHAR(1)
+}
+entity T_ELV_MOTORISTA {
+  * id_usuario : NUMBER(10) <<PK, FK>>
+  --
+  * nr_telefone : VARCHAR2(20)
+  * dt_adesao : DATE
+}
+entity T_ELV_FUNCIONARIO {
+  * id_usuario : NUMBER(10) <<PK, FK>>
+  --
+  * nr_matricula : VARCHAR2(20) <<UK>>
+  * ds_perfil : VARCHAR2(15)
+}
+entity T_ELV_MODELO_VEICULO {
+  * id_modelo : NUMBER(10) <<PK>>
+  --
+  * nm_marca : VARCHAR2(40)
+  * nm_modelo : VARCHAR2(60)
+  * nr_ano : NUMBER(4)
+}
+entity T_ELV_TIPO_CONECTOR {
+  * id_tipo_conector : NUMBER(10) <<PK>>
+  --
+  * nm_tipo_conector : VARCHAR2(30) <<UK>>
+  * st_corrente_continua : CHAR(1)
+}
+entity T_ELV_COMPATIBILIDADE {
+  * id_modelo : NUMBER(10) <<PK, FK>>
+  * id_tipo_conector : NUMBER(10) <<PK, FK>>
+  --
+  * vl_potencia_max_kw : NUMBER(6,2)
+}
+entity T_ELV_VEICULO {
+  * id_veiculo : NUMBER(10) <<PK>>
+  --
+  * id_usuario : NUMBER(10) <<FK>>
+  * id_modelo : NUMBER(10) <<FK>>
+  * ds_apelido : VARCHAR2(40)
+}
+entity T_ELV_CIDADE {
+  * id_cidade : NUMBER(10) <<PK>>
+  --
+  * nm_cidade : VARCHAR2(80)
+  * sg_uf : CHAR(2)
+}
+entity T_ELV_ESTACAO {
+  * id_estacao : NUMBER(10) <<PK>>
+  --
+  * id_cidade : NUMBER(10) <<FK>>
+  * nm_estacao : VARCHAR2(80)
+  * ds_logradouro : VARCHAR2(120)
+  * nr_logradouro : VARCHAR2(10)
+  * nm_bairro : VARCHAR2(60)
+  * vl_latitude : NUMBER(9,6)
+  * vl_longitude : NUMBER(9,6)
+  * st_estacao : VARCHAR2(15)
+}
+entity T_ELV_CONECTOR {
+  * id_conector : NUMBER(10) <<PK>>
+  --
+  * id_estacao : NUMBER(10) <<FK>>
+  * id_tipo_conector : NUMBER(10) <<FK>>
+  * ds_identificacao : VARCHAR2(20) <<UK>>
+  * vl_potencia_kw : NUMBER(6,2)
+  * vl_preco_kwh : NUMBER(6,2)
+  * st_conector : VARCHAR2(15)
+  dt_ultima_comunicacao : DATE
+}
+entity T_ELV_SESSAO_RECARGA {
+  * id_sessao : NUMBER(10) <<PK>>
+  --
+  * id_veiculo : NUMBER(10) <<FK>>
+  * id_conector : NUMBER(10) <<FK>>
+  * dt_inicio : DATE
+  dt_termino : DATE
+  qt_energia_kwh : NUMBER(8,3)
+  * vl_preco_kwh_aplicado : NUMBER(6,2)
+  * vl_desconto_kwh_aplicado : NUMBER(6,2)
+  * st_sessao : VARCHAR2(15)
+}
+entity T_ELV_PLANO {
+  * id_plano : NUMBER(10) <<PK>>
+  --
+  * nm_plano : VARCHAR2(40) <<UK>>
+  * vl_mensalidade : NUMBER(8,2)
+  * vl_desconto_kwh : NUMBER(6,2)
+}
+entity T_ELV_ASSINATURA {
+  * id_assinatura : NUMBER(10) <<PK>>
+  --
+  * id_usuario : NUMBER(10) <<FK>>
+  * id_plano : NUMBER(10) <<FK>>
+  * dt_inicio : DATE
+  dt_fim : DATE
+}
+entity T_ELV_PAGAMENTO {
+  * id_pagamento : NUMBER(10) <<PK>>
+  --
+  * vl_pagamento : NUMBER(10,2)
+  * dt_pagamento : DATE
+  * ds_meio_pagamento : VARCHAR2(15)
+  * st_pagamento : VARCHAR2(10)
+  ds_referencia_transacao : VARCHAR2(60)
+}
+entity T_ELV_PAGAMENTO_RECARGA {
+  * id_pagamento : NUMBER(10) <<PK, FK>>
+  --
+  * id_sessao : NUMBER(10) <<FK, UK>>
+}
+entity T_ELV_PAGAMENTO_MENSALIDADE {
+  * id_pagamento : NUMBER(10) <<PK, FK>>
+  --
+  * id_assinatura : NUMBER(10) <<FK>>
+  * dt_competencia : DATE
+}
+entity T_ELV_MANUTENCAO {
+  * id_manutencao : NUMBER(10) <<PK>>
+  --
+  * id_estacao : NUMBER(10) <<FK>>
+  id_tecnico : NUMBER(10) <<FK>>
+  * dt_abertura : DATE
+  dt_encerramento : DATE
+  * ds_manutencao : VARCHAR2(255)
+  * ds_prioridade : VARCHAR2(10)
+  * st_manutencao : VARCHAR2(15)
+}
+
+T_ELV_USUARIO ||--o| T_ELV_MOTORISTA : é um
+T_ELV_USUARIO ||--o| T_ELV_FUNCIONARIO : é um
+T_ELV_MOTORISTA ||--o{ T_ELV_VEICULO : possui
+T_ELV_MODELO_VEICULO ||--o{ T_ELV_VEICULO : define
+T_ELV_MODELO_VEICULO ||--|{ T_ELV_COMPATIBILIDADE
+T_ELV_TIPO_CONECTOR ||--o{ T_ELV_COMPATIBILIDADE
+T_ELV_TIPO_CONECTOR ||--o{ T_ELV_CONECTOR : classifica
+T_ELV_CIDADE ||--o{ T_ELV_ESTACAO : localiza
+T_ELV_ESTACAO ||--o{ T_ELV_CONECTOR : contém
+T_ELV_ESTACAO ||--o{ T_ELV_MANUTENCAO : recebe
+T_ELV_FUNCIONARIO |o--o{ T_ELV_MANUTENCAO : atende
+T_ELV_VEICULO ||--o{ T_ELV_SESSAO_RECARGA : realiza
+T_ELV_CONECTOR ||--o{ T_ELV_SESSAO_RECARGA : atende
+T_ELV_MOTORISTA ||--o{ T_ELV_ASSINATURA : adere
+T_ELV_PLANO ||--o{ T_ELV_ASSINATURA : origina
+T_ELV_PAGAMENTO ||--o| T_ELV_PAGAMENTO_RECARGA : é um
+T_ELV_PAGAMENTO ||--o| T_ELV_PAGAMENTO_MENSALIDADE : é um
+T_ELV_SESSAO_RECARGA ||--o| T_ELV_PAGAMENTO_RECARGA : é paga por
+T_ELV_ASSINATURA ||--o{ T_ELV_PAGAMENTO_MENSALIDADE : gera
+@enduml

@@ -1,0 +1,251 @@
+@startuml diagrama-classes
+' Diagrama de classes ElectraVia (getters e setters omitidos)
+skinparam monochrome true
+skinparam shadowing false
+skinparam dpi 130
+skinparam defaultFontName Liberation Sans
+skinparam classAttributeIconSize 0
+skinparam nodesep 40
+skinparam ranksep 50
+skinparam packageStyle folder
+hide empty members
+left to right direction
+hide circle
+
+package usuario {
+  class Usuario {
+    - id : int
+    - nome : String
+    - email : String
+    - senhaHash : String
+    - ativo : boolean
+    + Usuario()
+    + Usuario(id, nome, email, senhaHash)
+    + desativar() : void
+    + reativar() : void
+    + podeAcessar(recurso : String) : boolean
+    + exibirDados() : void
+  }
+  class Motorista {
+    - telefone : String
+    - dataAdesao : String
+    + Motorista()
+    + Motorista(id, nome, email, senhaHash, telefone, dataAdesao)
+    + assinar(idAssinatura : int, plano : Plano, dataInicio : String) : void
+    + descontoAtual() : double
+    + podeAcessar(recurso : String) : boolean
+    + exibirDados() : void
+  }
+  class Funcionario {
+    - matricula : String
+    - perfil : String
+    + Funcionario()
+    + Funcionario(id, nome, email, senhaHash, matricula, perfil)
+    + podeAcessar(recurso : String) : boolean
+    + exibirDados() : void
+  }
+}
+
+package veiculo {
+  class ModeloVeiculo {
+    - id : int
+    - marca : String
+    - modelo : String
+    - ano : int
+    - qtdCompatibilidades : int
+    + ModeloVeiculo()
+    + ModeloVeiculo(id, marca, modelo, ano)
+    + adicionarCompatibilidade(tipo : TipoConector, potenciaMaxKw : double) : void
+    + aceita(tipo : TipoConector) : boolean
+    + descricao() : String
+  }
+  class Compatibilidade {
+    - potenciaMaxKw : double
+    + Compatibilidade()
+    + Compatibilidade(modelo, tipoConector, potenciaMaxKw)
+  }
+  class Veiculo {
+    - id : int
+    - apelido : String
+    + Veiculo()
+    + Veiculo(id, apelido, dono, modelo)
+    + Veiculo(id, dono, modelo)
+    + compativelCom(conector : Conector) : boolean
+  }
+}
+
+package rede {
+  class Cidade {
+    - id : int
+    - nome : String
+    - uf : String
+    + Cidade()
+    + Cidade(id, nome, uf)
+  }
+  class TipoConector {
+    - id : int
+    - nome : String
+    - correnteContinua : boolean
+    + TipoConector()
+    + TipoConector(id, nome, correnteContinua)
+  }
+  class Estacao {
+    - id : int
+    - nome : String
+    - logradouro : String
+    - numero : String
+    - bairro : String
+    - latitude : double
+    - longitude : double
+    - situacao : String
+    - qtdConectores : int
+    + Estacao()
+    + Estacao(id, nome, logradouro, numero, bairro, cidade, latitude, longitude)
+    + adicionarConector(conector : Conector) : void
+    + atende(veiculo : Veiculo) : boolean
+    + buscarConectorLivre(veiculo : Veiculo) : Conector
+    + exibirDados() : void
+  }
+  class Conector {
+    - id : int
+    - identificacao : String
+    - potenciaKw : double
+    - precoKwh : double
+    - estado : String
+    - ultimaComunicacao : String
+    + Conector()
+    + Conector(id, identificacao, estacao, tipo, potenciaKw, precoKwh)
+    + estaLivre() : boolean
+    + registrarStatus(estado : String, dataHora : String) : void
+    + iniciarRecarga(idSessao : int, veiculo : Veiculo, inicio : String) : SessaoRecarga
+  }
+  class Manutencao {
+    - id : int
+    - abertura : String
+    - encerramento : String
+    - descricao : String
+    - prioridade : String
+    - situacao : String
+    + Manutencao()
+    + Manutencao(id, estacao, descricao, abertura, prioridade)
+    + Manutencao(id, estacao, descricao, abertura)
+    + atribuir(funcionario : Funcionario) : void
+    + concluir(encerramento : String) : void
+  }
+}
+
+package recarga {
+  class SessaoRecarga {
+    - id : int
+    - inicio : String
+    - termino : String
+    - energiaKwh : double
+    - precoKwhAplicado : double
+    - descontoKwhAplicado : double
+    - status : String
+    + SessaoRecarga()
+    + SessaoRecarga(id, veiculo, conector, inicio, precoKwhAplicado, descontoKwhAplicado)
+    + encerrar(termino : String, energiaKwh : double) : void
+    + calcularCusto() : double
+    + exibirDados() : void
+  }
+  class FilaEspera {
+    - ini : NO
+    - fim : NO
+    + INIT() : void
+    + IsEmpty() : boolean
+    + ENQUEUE(item : Veiculo) : void
+    + DEQUEUE() : Retorno
+    + tamanho() : int
+    + exibir() : void
+  }
+  class PilhaRecargas {
+    - topo : NO
+    + INIT() : void
+    + IsEmpty() : boolean
+    + PUSH(item : SessaoRecarga) : void
+    + POP() : Retorno
+    + TOP() : Retorno
+    + exibir() : void
+  }
+}
+
+package pagamento {
+  class Plano {
+    - id : int
+    - nome : String
+    - mensalidade : double
+    - descontoKwh : double
+    + Plano()
+    + Plano(id, nome, mensalidade, descontoKwh)
+    + Plano(id, nome, mensalidade)
+  }
+  class Assinatura {
+    - id : int
+    - dataInicio : String
+    - dataFim : String
+    + Assinatura()
+    + Assinatura(id, motorista, plano, dataInicio)
+    + estaVigente() : boolean
+    + encerrar(dataFim : String) : void
+  }
+  class Pagamento {
+    - id : int
+    - valor : double
+    - dataHora : String
+    - meio : String
+    - situacao : String
+    - referenciaTransacao : String
+    + Pagamento()
+    + Pagamento(id, valor, meio, dataHora)
+    + aprovar(referenciaTransacao : String) : void
+    + recusar() : void
+    + descricao() : String
+    + emitirComprovante() : void
+  }
+  class PagamentoRecarga {
+    + PagamentoRecarga()
+    + PagamentoRecarga(id, sessao, meio, dataHora)
+    + descricao() : String
+  }
+  class PagamentoMensalidade {
+    - competencia : String
+    + PagamentoMensalidade()
+    + PagamentoMensalidade(id, assinatura, competencia, meio, dataHora)
+    + descricao() : String
+  }
+}
+
+class Main {
+  + {static} main(args : String[]) : void
+}
+
+Usuario <|-- Motorista
+Usuario <|-- Funcionario
+Pagamento <|-- PagamentoRecarga
+Pagamento <|-- PagamentoMensalidade
+
+Motorista "1" --> "0..1" Assinatura : assinatura
+Motorista "1" *-- "1" PilhaRecargas : historico
+PilhaRecargas o-- "0..*" SessaoRecarga : dado
+Assinatura "0..*" --> "1" Plano : plano
+Assinatura "0..*" --> "1" Motorista : motorista
+Veiculo "0..*" --> "1" Motorista : dono
+Veiculo "0..*" --> "1" ModeloVeiculo : modelo
+ModeloVeiculo "1" *-- "0..5" Compatibilidade : compatibilidades
+Compatibilidade "0..*" --> "1" TipoConector : tipoConector
+Estacao "0..*" --> "1" Cidade : cidade
+Estacao "1" o-- "0..10" Conector : conectores
+Estacao "1" *-- "1" FilaEspera : filaEspera
+FilaEspera o-- "0..*" Veiculo : dado
+Conector "0..*" --> "1" Estacao : estacao
+Conector "0..*" --> "1" TipoConector : tipo
+SessaoRecarga "0..*" --> "1" Veiculo : veiculo
+SessaoRecarga "0..*" --> "1" Conector : conector
+PagamentoRecarga "0..1" --> "1" SessaoRecarga : sessao
+PagamentoMensalidade "0..*" --> "1" Assinatura : assinatura
+Manutencao "0..*" --> "1" Estacao : estacao
+Manutencao "0..*" --> "0..1" Funcionario : tecnico
+Main ..> Estacao
+Main ..> Usuario
+@enduml
